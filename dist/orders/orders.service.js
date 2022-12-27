@@ -19,15 +19,15 @@ const uuid_1 = require("uuid");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 let OrdersService = class OrdersService {
-    constructor(orders = [], orderModel) {
-        this.orders = orders;
+    constructor(orderModel) {
+        this.orderModel = orderModel;
     }
-    getAllOrders() {
-        return this.orders;
+    async getAllOrders() {
+        return this.orderModel.find().exec();
     }
-    getOrdersWithFilter(filterDto) {
+    async getOrdersWithFilter(filterDto) {
         const { status, search } = filterDto;
-        let orders = this.getAllOrders();
+        let orders = await this.getAllOrders();
         if (status) {
             orders = orders.filter(order => order.status === status);
         }
@@ -38,38 +38,43 @@ let OrdersService = class OrdersService {
         }
         return orders;
     }
-    getOrderById(id) {
-        const found = this.orders.find(order => order.id === id);
-        if (!found) {
+    async getOrderById(id) {
+        let order = await this.orderModel.findById(id).exec();
+        if (!order) {
             throw new common_1.NotFoundException(`Order id no. ${id} not found`);
         }
-        return found;
-    }
-    updateOrderStatus(id, status) {
-        const order = this.getOrderById(id);
-        order.status = status;
         return order;
     }
-    deleteOrderById(id) {
-        const found = this.getOrderById(id);
-        this.orders = this.orders.filter(order => order.id !== found.id);
+    async updateOrderStatus(id, status) {
+        const order = await this.orderModel.findByIdAndUpdate(id);
+        if (!order) {
+            throw new common_1.NotFoundException(`Order ID ${id} not found`);
+        }
+        order.status = status;
+        return order.save();
     }
-    createOrder(createOrderDto) {
+    async deleteOrderById(id) {
+        const deletedOrder = await this.orderModel.findByIdAndDelete(id);
+        if (!deletedOrder) {
+            throw new common_1.NotFoundException(`Order ${id} not found`);
+        }
+        return deletedOrder;
+    }
+    async createOrder(createOrderDto) {
         const { foodtype, animal } = createOrderDto;
-        const order = {
+        const createdOrder = new this.orderModel({
             id: (0, uuid_1.v4)(),
             foodtype,
             animal,
             status: order_schema_1.OrderStatus.OPEN
-        };
-        this.orders.push(order);
-        return order;
+        });
+        return createdOrder.save();
     }
 };
 OrdersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(order_schema_1.Order.name)),
-    __metadata("design:paramtypes", [Array, mongoose_2.Model])
+    __metadata("design:paramtypes", [mongoose_2.Model])
 ], OrdersService);
 exports.OrdersService = OrdersService;
 //# sourceMappingURL=orders.service.js.map

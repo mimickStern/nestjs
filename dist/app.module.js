@@ -16,7 +16,7 @@ AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             orders_module_1.OrdersModule,
-            mongoose_1.MongooseModule.forRoot(`mongodb+srv://mickey:300583Ms@cluster0.genvem9.mongodb.net/?retryWrites=true&w=majority`)
+            mongoose_1.MongooseModule.forRoot(`mongodb+srv://mickey:Q82AqCSEHJDPiaE7@animal-food.nrpfsbt.mongodb.net/?retryWrites=true&w=majority`),
         ],
     })
 ], AppModule);

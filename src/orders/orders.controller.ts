@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { GetOrdersFilterDto } from './dto/get-orders-filter.dto';
 import { Order, OrderStatus } from './order.schema';
@@ -10,7 +10,7 @@ export class OrdersController {
     constructor (private ordersService: OrdersService) {}
 
     @Get()
-    getOrders(@Query(ValidationPipe) filterDto: GetOrdersFilterDto): Order[] {
+    async getOrders(@Query(ValidationPipe) filterDto: GetOrdersFilterDto){
         if (Object.keys(filterDto).length){
             return this.ordersService.getOrdersWithFilter(filterDto);
         } else {
@@ -21,27 +21,33 @@ export class OrdersController {
 
 
     @Get('/:id')
-    getOrderById(@Param('id') id: string): Order {
-        return this.ordersService.getOrderById(id);
-    }
+    async getOrderById (@Res() response, @Param('id') id: string) {
+        
+            const order = await this.ordersService.getOrderById(id);
+            return response.status(HttpStatus.OK).json({
+                message:`Order ID ${id} successfully found`, 
+                order:order
+            });
+         }
 
     @Delete('/:id')
-    deleteOrderById(@Param('id') id: string): void {
+    async deleteOrderById(@Param('id') id: string) {
         this.ordersService.deleteOrderById(id);
+        return {message: `Order ${id} deleted`}
     }
 
     @Patch('/:id/status')
-    updateOrderStatus(
+    async updateOrderStatus(
         @Param('id') id:string,
         @Body ('status', OrderStatusValidationPipe) status: OrderStatus,
-        ): Order {
+        ): Promise<Order> {
         return this.ordersService.updateOrderStatus(id, status);
     }
 
     // Using DTO
     @Post()
     @UsePipes(ValidationPipe)
-    createOrder(@Body() createOrderDto: CreateOrderDto): Order {
+    async createOrder(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
         return this.ordersService.createOrder(createOrderDto);
     }
 

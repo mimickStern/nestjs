@@ -5,9 +5,11 @@ import { OrdersService } from './orders.service';
 export declare class OrdersController {
     private ordersService;
     constructor(ordersService: OrdersService);
-    getOrders(filterDto: GetOrdersFilterDto): Order[];
-    getOrderById(id: string): Order;
-    deleteOrderById(id: string): void;
-    updateOrderStatus(id: string, status: OrderStatus): Order;
-    createOrder(createOrderDto: CreateOrderDto): Order;
+    getOrders(filterDto: GetOrdersFilterDto): Promise<Order[]>;
+    getOrderById(response: any, id: string): Promise<any>;
+    deleteOrderById(id: string): Promise<{
+        message: string;
+    }>;
+    updateOrderStatus(id: string, status: OrderStatus): Promise<Order>;
+    createOrder(createOrderDto: CreateOrderDto): Promise<Order>;
 }

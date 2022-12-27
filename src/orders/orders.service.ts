@@ -8,20 +8,21 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class OrdersService {
-    constructor(@InjectModel(Order.name) private orders: Order[] = [], orderModel: Model<OrderDocument>){}
+    orders: any;
+    constructor(@InjectModel(Order.name) private  orderModel: Model<OrderDocument>){}
     
 
-    getAllOrders(): Order[] {
-        return this.orders;
+    async getAllOrders(): Promise<Order[]> {
+        return this.orderModel.find().exec();
     }
 
-    getOrdersWithFilter(filterDto: GetOrdersFilterDto): Order[] {
+    async getOrdersWithFilter(filterDto: GetOrdersFilterDto): Promise<Order[]> {
         const {status, search} = filterDto;
 
-        let orders = this.getAllOrders();
+        let orders = await this.getAllOrders();
         
         if (status) {
-            orders = orders.filter(order => order.status === status);
+            orders =  orders.filter(order => order.status === status);
         }
 
         // filter by substring
@@ -36,38 +37,43 @@ export class OrdersService {
         return orders
     }
 
-    getOrderById(id: string): Order {
-        const found = this.orders.find(order => order.id === id);
-         if (!found) {
+    async getOrderById(id: string): Promise<Order> {
+        let order = await this.orderModel.findById(id).exec();
+         if (!order) {
             throw new NotFoundException(`Order id no. ${id} not found`);
          }
-         return found;
+         return order;
     }
 
-    updateOrderStatus(id: string, status: OrderStatus): Order{
-        const order = this.getOrderById(id);
+    async updateOrderStatus(id: string, status: OrderStatus): Promise<Order>{
+        const order = await this.orderModel.findByIdAndUpdate(id);
+        if (!order){
+            throw new NotFoundException(`Order ID ${id} not found`);
+        }
         order.status = status;
-        return order;
+        return order.save();
     }
 
-    deleteOrderById(id: string): void {
-        const found = this.getOrderById(id);
-        this.orders = this.orders.filter(order => order.id !== found.id);
+    async deleteOrderById(id: string): Promise<Order> {
+        const deletedOrder = await this.orderModel.findByIdAndDelete(id);
+        if (!deletedOrder){
+            throw new NotFoundException(`Order ${id} not found`);
+        }
+        return deletedOrder
     }
 
     // Using DTO
-    createOrder(createOrderDto: CreateOrderDto): Order {
+    async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
         const {foodtype, animal} = createOrderDto;
 
-        const order: Order = {
+        const createdOrder = new this.orderModel({
             id:uuidv4(),
             foodtype,
             animal,
             status:OrderStatus.OPEN
-        };
 
-        this.orders.push(order);
-        return order;
+        });
+        return createdOrder.save()
     }
 
     // Regular Way

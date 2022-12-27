@@ -23,7 +23,7 @@ let OrdersController = class OrdersController {
     constructor(ordersService) {
         this.ordersService = ordersService;
     }
-    getOrders(filterDto) {
+    async getOrders(filterDto) {
         if (Object.keys(filterDto).length) {
             return this.ordersService.getOrdersWithFilter(filterDto);
         }
@@ -31,16 +31,21 @@ let OrdersController = class OrdersController {
             return this.ordersService.getAllOrders();
         }
     }
-    getOrderById(id) {
-        return this.ordersService.getOrderById(id);
+    async getOrderById(response, id) {
+        const order = await this.ordersService.getOrderById(id);
+        return response.status(common_1.HttpStatus.OK).json({
+            message: `Order ID ${id} successfully found`,
+            order: order
+        });
     }
-    deleteOrderById(id) {
+    async deleteOrderById(id) {
         this.ordersService.deleteOrderById(id);
+        return { message: `Order ${id} deleted` };
     }
-    updateOrderStatus(id, status) {
+    async updateOrderStatus(id, status) {
         return this.ordersService.updateOrderStatus(id, status);
     }
-    createOrder(createOrderDto) {
+    async createOrder(createOrderDto) {
         return this.ordersService.createOrder(createOrderDto);
     }
 };
@@ -49,21 +54,22 @@ __decorate([
     __param(0, (0, common_1.Query)(common_1.ValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [get_orders_filter_dto_1.GetOrdersFilterDto]),
-    __metadata("design:returntype", Array)
+    __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "getOrders", null);
 __decorate([
     (0, common_1.Get)('/:id'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Res)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", order_schema_1.Order)
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "getOrderById", null);
 __decorate([
     (0, common_1.Delete)('/:id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "deleteOrderById", null);
 __decorate([
     (0, common_1.Patch)('/:id/status'),
@@ -71,7 +77,7 @@ __decorate([
     __param(1, (0, common_1.Body)('status', order_status_validation_pipe_1.OrderStatusValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
-    __metadata("design:returntype", order_schema_1.Order)
+    __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "updateOrderStatus", null);
 __decorate([
     (0, common_1.Post)(),
@@ -79,7 +85,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_order_dto_1.CreateOrderDto]),
-    __metadata("design:returntype", order_schema_1.Order)
+    __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "createOrder", null);
 OrdersController = __decorate([
     (0, common_1.Controller)('orders'),

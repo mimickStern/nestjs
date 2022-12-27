@@ -6,7 +6,8 @@ import { OrdersModule } from './orders/orders.module';
 @Module({
   imports: [
     OrdersModule,
-    MongooseModule.forRoot(`mongodb+srv://mickey:300583Ms@cluster0.genvem9.mongodb.net/?retryWrites=true&w=majority`)
+    MongooseModule.forRoot(`mongodb+srv://mickey:Q82AqCSEHJDPiaE7@animal-food.nrpfsbt.mongodb.net/?retryWrites=true&w=majority`),
   ],
 })
 export class AppModule {}
+

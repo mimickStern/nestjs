@@ -3,12 +3,13 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { GetOrdersFilterDto } from './dto/get-orders-filter.dto';
 import { Model } from 'mongoose';
 export declare class OrdersService {
-    private orders;
-    constructor(orders: Order[], orderModel: Model<OrderDocument>);
-    getAllOrders(): Order[];
-    getOrdersWithFilter(filterDto: GetOrdersFilterDto): Order[];
-    getOrderById(id: string): Order;
-    updateOrderStatus(id: string, status: OrderStatus): Order;
-    deleteOrderById(id: string): void;
-    createOrder(createOrderDto: CreateOrderDto): Order;
+    private orderModel;
+    orders: any;
+    constructor(orderModel: Model<OrderDocument>);
+    getAllOrders(): Promise<Order[]>;
+    getOrdersWithFilter(filterDto: GetOrdersFilterDto): Promise<Order[]>;
+    getOrderById(id: string): Promise<Order>;
+    updateOrderStatus(id: string, status: OrderStatus): Promise<Order>;
+    deleteOrderById(id: string): Promise<Order>;
+    createOrder(createOrderDto: CreateOrderDto): Promise<Order>;
 }
